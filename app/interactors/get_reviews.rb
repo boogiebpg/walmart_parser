@@ -6,11 +6,12 @@ class GetReviews
   require 'rest-client'
 
   REVIEWS_URL = "https://www.walmart.com/terra-firma/fetch?rgs=REVIEWS_MAP"
+  COMMENTS_LIMIT = 100
 
   def call
     # fetch product_id_hash for comments fetching
     product_id_hash = context.doc.content[/primaryProductId":"(.+?)"/m, 1]
-    context.fail!(message: "reviews.cant_find_product_id_hash") if product_id_hash.nil?
+    context.fail!(message: "reviews.cant_find_product_id_hash") && exit if product_id_hash.nil?
 
     # fetching comments
     reviews_page = 0
@@ -19,8 +20,9 @@ class GetReviews
       request_body = {productId: product_id_hash,
                       paginationContext: {sort:   "relevancy",
                                           filters: [],
-                                          limit:   100,
+                                          limit:   COMMENTS_LIMIT,
                                           page:    reviews_page}}.to_json
+
       response = RestClient.post REVIEWS_URL,
                                  request_body,
                                  {content_type: :json, accept: :json}
@@ -33,7 +35,8 @@ class GetReviews
       rescue JSON::ParserError
         context.fail!(message: "reviews.response_parse_error")
       end
-      reviews.each do |review|
+
+      Array(reviews).each do |review|
         next if !review['reviewText'].include?(context.keyword) && context.keyword.present?
         begin
           context.product.reviews.create(id:           review['reviewId'],
@@ -44,8 +47,8 @@ class GetReviews
           Rails.logger.debug 'Review already exists in DB.'
         end
       end
-      reviews_count = reviews.count
-      break if reviews_count < 1
+      reviews_count = Array(reviews).count
+      break if reviews_count < COMMENTS_LIMIT
     end
   end
 end
