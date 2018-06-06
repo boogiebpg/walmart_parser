@@ -1,0 +1,10 @@
+.main-section.with-form
+  = form_tag('/products', method: :post) do |f|
+    %p
+      = label_tag 'link'
+      = text_field_tag 'parse_form[link]', nil, label: 'link', placeholder: 'Enter link'
+    %p
+      = label_tag 'keyword'
+      = text_field_tag 'parse_form[keyword]', nil, label: 'keyword', placeholder: 'Enter reviews keyword'
+    %p
+      = submit_tag 'Submit'
