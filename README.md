@@ -1,24 +1,7 @@
-# README
+# Walmart Parser
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Simple parser for walmart products and comments.
+Business logic moved to interactors to keep code clean and readable.
+Sidekiq used for background processing which is better option for such kind of tasks.
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+We're keeping our records unique with their own walmart ids which inserting into our unique id field in DB.
